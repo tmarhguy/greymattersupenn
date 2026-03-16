@@ -1,0 +1,60 @@
+"use client";
+
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+
+type PreloaderProps = {
+  visible: boolean;
+};
+
+export function Preloader({ visible }: PreloaderProps) {
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          className="fixed inset-0 z-[var(--z-modal)] flex flex-col items-center justify-center bg-[var(--color-bg)] pointer-events-auto"
+          initial={{ opacity: 1 }}
+          exit={{ opacity: 0, pointerEvents: "none" }}
+          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+        >
+          <div className="relative flex flex-col items-center overflow-hidden">
+            <motion.div
+              className="relative shrink-0"
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}
+            >
+              <div className="relative">
+                <Image
+                  src="/main-image.png"
+                  alt="Penn Grey Matters"
+                  width={200}
+                  height={123}
+                  className="relative w-40 h-[98px] md:w-[200px] md:h-[123px] object-contain"
+                  priority
+                />
+              </div>
+            </motion.div>
+            <motion.p
+              className="font-display text-2xl md:text-3xl font-light text-[var(--color-text-primary)] mt-6 shrink-0"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+            >
+              Penn Grey Matters
+            </motion.p>
+            <motion.p
+              className="font-mono text-sm uppercase text-[var(--color-accent)] mt-2 shrink-0"
+              style={{ letterSpacing: "0.2em" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8, duration: 0.4 }}
+            >
+              Making Neuroscience Accessible
+            </motion.p>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}

@@ -1,5 +1,20 @@
 import type { Metadata } from "next";
+import { Nunito, M_PLUS_Rounded_1c } from "next/font/google";
 import "./globals.css";
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-nunito",
+  display: "swap",
+});
+
+const mPlusRounded = M_PLUS_Rounded_1c({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-mplus-rounded",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Penn Grey Matters | Making Neuroscience Accessible",
@@ -27,7 +42,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className={`dark ${nunito.variable} ${mPlusRounded.variable}`}>
       <body className="antialiased">
         <div className="grain-overlay" aria-hidden="true" />
         {children}

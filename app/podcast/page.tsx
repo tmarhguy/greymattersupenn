@@ -1,26 +1,60 @@
 import { Navigation } from "@/components/nav/Navigation";
 import { Footer } from "@/components/Footer";
+import { ContentComingSoon } from "@/components/content/ContentComingSoon";
+
+const features = [
+  {
+    title: "Faculty conversations",
+    description:
+      "Long-form interviews with Penn neuroscience researchers on their work, discoveries, and what drew them to the brain.",
+  },
+  {
+    title: "Accessible deep dives",
+    description:
+      "Complex topics broken down without dumbing them down — built for curious students and lifelong learners alike.",
+  },
+  {
+    title: "New episodes regularly",
+    description:
+      "We're building a library of conversations across cognition, disease, technology, and the mind.",
+  },
+];
+
+const placeholders = [
+  {
+    tag: "Episode 01",
+    title: "Inside the lab",
+    subtitle: "A Penn faculty member on what neuroscience research looks like day to day.",
+  },
+  {
+    tag: "Episode 02",
+    title: "Memory & the mind",
+    subtitle: "How we study learning, forgetting, and what makes memories stick.",
+  },
+  {
+    tag: "Episode 03",
+    title: "From bench to bedside",
+    subtitle: "Translating brain science into treatments that help real patients.",
+  },
+];
 
 export default function PodcastPage() {
   return (
     <>
       <Navigation />
       <main className="min-h-screen pt-[var(--main-top-offset)]">
-        <section className="py-4 md:py-6 px-4 md:px-8">
-          <div className="max-w-[var(--wide-max)] mx-auto">
-            <h1 className="font-display text-4xl md:text-5xl font-light text-[var(--color-text-primary)] mb-4">
-              Grey Frequencies
-            </h1>
-            <p className="font-body text-[var(--color-text-muted)] text-lg mb-12">
-              Podcast episodes featuring Penn faculty and neuroscience discussions.
-            </p>
-            <div className="min-h-[300px] rounded-[var(--radius-lg)] border border-[var(--color-accent)]/20 flex items-center justify-center bg-[var(--color-surface)]">
-              <p className="font-mono text-[var(--color-text-muted)] text-sm">
-                Episodes will load from Sanity CMS
-              </p>
-            </div>
-          </div>
-        </section>
+        <ContentComingSoon
+          label="Podcast"
+          title="Grey Frequencies"
+          description="Conversations with Penn faculty and researchers — neuroscience explained through the people who study it."
+          features={features}
+          placeholders={placeholders}
+          ctaTitle="Want to host or produce?"
+          ctaDescription="We're looking for podcast hosts, audio editors, and interviewers. No experience required — just curiosity."
+          ctaHref="/get-involved"
+          ctaLabel="Get Involved"
+          visual="podcast"
+        />
         <Footer />
       </main>
     </>

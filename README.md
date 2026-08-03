@@ -4,143 +4,114 @@
   <img src="public/main-image.png" alt="Penn Grey Matters" width="320">
 </div>
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.5-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19.1-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Three.js](https://img.shields.io/badge/Three.js-R3F-black?style=for-the-badge&logo=three.js&logoColor=white)](https://docs.pmnd.rs/react-three-fiber)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-2563EB?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React Three Fiber](https://img.shields.io/badge/R3F-interactive_3D-000000?style=for-the-badge&logo=three.js&logoColor=white)](https://docs.pmnd.rs/react-three-fiber)
 [![Sanity](https://img.shields.io/badge/Sanity-CMS-F03E2F?style=for-the-badge&logo=sanity&logoColor=white)](https://www.sanity.io/)
-[![Framer Motion](https://img.shields.io/badge/Framer_Motion-11-0055FF?style=for-the-badge&logo=framer&logoColor=white)](https://www.framer.com/motion/)
 
-> **Official website** for [Penn Grey Matters](https://greymattersjournalpenn.org) — a student neuroscience publication at the University of Pennsylvania dedicated to making neuroscience accessible through articles, podcasts, and interactive experiences.
+Website for **Penn Grey Matters** — the UPenn student neuroscience publication. Articles, a 3D brain you can poke at, podcast and research pages (content still rolling in), and the usual about/team/join stuff.
 
----
+Built with Next.js 15, TypeScript, Tailwind v4, Framer Motion, and React Three Fiber. Content lives in JSON files for now; Sanity schema is sketched out in `sanity/schema.ts`.
 
-## Project Overview
+## Table of Contents
 
-This repository is the flagship website for **Penn Grey Matters**, a neuroscience publication run by students at the University of Pennsylvania. It is not a blog; it is a scroll-driven, cinematic, scientifically-grounded digital publication built to serve as a reference for university science media.
-
-**Site structure — three pillars:**
-
-| Pillar | Purpose |
-|--------|---------|
-| **Publication** | Articles, Grey Frequencies podcast, archive |
-| **Exploration** | Grey Matter — interactive 3D brain explorer |
-| **Community** | Chapters worldwide, team, get involved |
-
-**Navigation:** Home | Articles | Grey Matter | Podcast | Research | Chapters | About | Join
+- [What's on the site](#whats-on-the-site)
+- [Grey Matter](#grey-matter)
+- [Run it](#run-it)
+- [Repo layout](#repo-layout)
+- [Routes](#routes)
 
 ---
 
-## Grey Matter — Interactive Brain Explorer
+## What's on the site
 
-The `/explore` route hosts **Grey Matter**, an interactive 3D brain visualization built with Three.js and React Three Fiber. Users can orbit, zoom, and pan around a neuroanatomically-informed brain model. Brain regions (hippocampus, amygdala, prefrontal cortex, etc.) are linked to functions, conditions, and related articles from the publication.
+**Home** opens with a preloader, then the hero expands. Below that: a scrolling row of recent articles, a neuron web that draws itself as you scroll, the about blurb, and a slice of the Grey Matter brain explorer.
 
-- **3D Engine:** Three.js via React Three Fiber and Drei
-- **Data:** Region metadata, pathways, and article links in `data/brain-regions.json` and `data/brain-pathways.json`
-- **Model:** GLTF brain asset in `public/models/brain/`
+<p align="center">
+  <img src="media/landing_page.png" alt="Landing page" width="88%">
+</p>
 
----
+**Articles** — archive and individual post pages with related reads.
 
-## Tech Stack
+**Grey Matter** (`/explore`) — drag to rotate a 3D brain, click regions in the side panel (hippocampus, amygdala, prefrontal cortex, etc.) for functions and facts. Same layout shows up on the homepage. See [Grey Matter](#grey-matter) below.
 
-### Frontend
+**Podcast & Research** — Grey Frequencies (`/podcast`) and Research Spotlight (`/research`). Pages are built with coming-soon layouts; episodes and faculty spotlights get added when they're ready.
 
-- **Framework:** [Next.js 15](https://nextjs.org/) (App Router, Turbopack)
-- **Language:** TypeScript 5
-- **Styling:** Tailwind CSS v4
-- **Motion:** Framer Motion 11 — preloader, hero transitions, scroll-driven animations
-- **Carousel:** Embla Carousel React
-- **State:** Zustand
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="media/podcast_page.png" alt="Grey Frequencies podcast page" width="100%"><br>
+      <sub><code>/podcast</code> · Grey Frequencies</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="media/research_page.png" alt="Research spotlight page" width="100%"><br>
+      <sub><code>/research</code> · Research Spotlight</sub>
+    </td>
+  </tr>
+</table>
 
-### Interactive 3D
+**Get Involved** (`/get-involved`) — recruitment page and join form. Writers, designers, researchers, podcast hosts, devs.
 
-- **Engine:** Three.js via [React Three Fiber](https://docs.pmnd.rs/react-three-fiber)
-- **Helpers:** [@react-three/drei](https://github.com/pmndrs/drei) — OrbitControls, useGLTF
+<p align="center">
+  <img src="media/get_involved_page.png" alt="Get involved page" width="75%">
+</p>
 
-### Backend & CMS
-
-- **CMS:** Sanity v3 (schema in `sanity/schema.ts`; Studio setup pending)
-- **API Routes:** Contact form (`/api/contact`), newsletter (`/api/newsletter`) via Resend
-
----
-
-## Local Development
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/tmarhguy/greymattersupenn.git
-   cd greymattersupenn
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Run the development server**
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:3000](http://localhost:3000).
+**Chapters, Team, About, Contact** — chapters map, editorial roster, mission statement, contact form.
 
 ---
 
-## Project Structure
+## Grey Matter
 
-| Path | Description |
-|------|--------------|
-| `app/` | Next.js App Router pages and layouts |
-| `components/` | Hero, Navigation, Preloader, Articles, BrainCanvas, Footer, etc. |
-| `data/` | Static JSON — brain-regions, brain-pathways, chapters, articles, team |
-| `lib/` | Sanity client, utilities |
-| `sanity/` | Sanity schema definitions (article, episode, teamMember, chapter) |
-| `public/` | Images, 3D models, main logo |
+3D brain model at `public/models/brain/scene.gltf`. Region copy in `data/brain-regions.json`. UI is `BrainCanvas` + `BrainRegionsPanel`, bundled as `GreyMatterExplorer`.
+
+<p align="center">
+  <img src="media/3d_brain.gif" alt="Grey Matter brain explorer" width="65%">
+</p>
 
 ---
 
-## Environment Variables
+## Run it
 
-Create `.env.local` and configure:
+```bash
+git clone https://github.com/tmarhguy/greymattersupenn.git
+cd greymattersupenn
+npm install
+npm run dev
+```
 
-| Variable | Purpose |
-|----------|---------|
-| `SANITY_PROJECT_ID` / `NEXT_PUBLIC_SANITY_PROJECT_ID` | Sanity CMS project |
-| `RESEND_API_KEY` | Contact form and newsletter (Resend) |
-| `EDITORIAL_EMAIL` | Contact form submission recipient |
+→ [localhost:3000](http://localhost:3000)
 
----
+`.env.local` if you need forms or Sanity:
 
-## Key Routes
-
-| Route | Description |
-|-------|-------------|
-| `/` | Homepage — preloader, hero, scroll story |
-| `/articles` | Article archive |
-| `/articles/[slug]` | Article detail with related articles carousel |
-| `/explore` | Grey Matter — interactive brain |
-| `/podcast` | Grey Frequencies podcast |
-| `/research` | Research spotlight |
-| `/visualizations` | Neuron diagrams, brain scans, illustrations |
-| `/chapters` | Grey Matters chapters worldwide |
-| `/about` | Purpose, scope, commitment |
-| `/team` | Editorial team |
-| `/get-involved` | Join form |
-| `/contact` | Contact form |
+| Variable | For |
+|----------|-----|
+| `NEXT_PUBLIC_SANITY_PROJECT_ID` | CMS |
+| `RESEND_API_KEY` | Contact / newsletter |
+| `EDITORIAL_EMAIL` | Where contact submissions go |
 
 ---
 
-## Content Migration
+## Repo layout
 
-Content from the legacy site (`old-website-data/`) — Purpose, Scope, Commitment, Articles, Chapters, Team — is intended for manual entry into Sanity. See [docs/ARTICLE-MIGRATION.md](docs/ARTICLE-MIGRATION.md) for the article inventory and migration steps.
+```
+app/           pages + API routes
+components/    UI (hero, articles, explore, neuron-network, …)
+data/          articles.json, brain-regions.json, team, chapters
+public/        images, brain model, logo
+media/         screenshots for this README
+sanity/        CMS schema (not wired up yet)
+docs/          article migration notes
+```
 
 ---
 
-## Related
+## Routes
 
-- **Legacy site:** [greymattersjournalpenn.org](https://greymattersjournalpenn.org)
-- **Article migration:** [docs/ARTICLE-MIGRATION.md](docs/ARTICLE-MIGRATION.md)
-
----
-
-**Penn Grey Matters** — University of Pennsylvania | Making Neuroscience Accessible
+| Path | What |
+|------|------|
+| `/` | Home |
+| `/articles`, `/articles/[slug]` | Archive + post |
+| `/explore` | Grey Matter |
+| `/podcast`, `/research` | Coming soon |
+| `/chapters`, `/team`, `/about` | Info |
+| `/get-involved`, `/contact` | Forms |

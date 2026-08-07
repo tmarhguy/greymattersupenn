@@ -82,6 +82,27 @@ export function HeroSection({ expanded = false }: HeroSectionProps) {
               }}
             />
           ))}
+          {[...Array(14)].map((_, i) => (
+            <motion.div
+              key={`red-${i}`}
+              className="absolute rounded-full bg-red-400"
+              style={{
+                width: i % 3 === 0 ? 5 : 3,
+                height: i % 3 === 0 ? 5 : 3,
+                left: `${9 + (i * 13.1) % 82}%`,
+                top: `${6 + (i * 17.3) % 86}%`,
+              }}
+              animate={{
+                opacity: [0.06, 0.2, 0.06],
+                scale: [1, 1.2, 1],
+              }}
+              transition={{
+                duration: 5 + (i % 3),
+                repeat: Infinity,
+                delay: i * 0.45,
+              }}
+            />
+          ))}
         </div>
       </div>
 
@@ -184,7 +205,7 @@ export function HeroSection({ expanded = false }: HeroSectionProps) {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2, duration: 0.5 }}
               >
-                A student publication at the University of Pennsylvania exploring the
+                A student journal at the University of Pennsylvania exploring the
                 brain, mind, and the frontiers of neuroscience.
               </motion.p>
               <motion.div

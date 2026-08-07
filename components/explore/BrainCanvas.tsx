@@ -28,9 +28,6 @@ function BrainFallback() {
   );
 }
 
-const BRAIN_CREDIT =
-  '"Human Brain" 3D model by Yash_Dandavate, licensed under CC BY 4.0. Original on Sketchfab.';
-
 type BrainCanvasProps = {
   className?: string;
 };
@@ -45,8 +42,10 @@ export function BrainCanvas({ className = "" }: BrainCanvasProps) {
           <Canvas
             className="!h-full !w-full"
             camera={{ position: [0, 0, 2.5], fov: 35 }}
-            gl={{ antialias: true, alpha: true }}
+            gl={{ antialias: true, alpha: false }}
             dpr={[1, 2]}
+            fallback={<BrainFallback />}
+            onCreated={({ gl }) => gl.setClearColor("#060318", 1)}
           >
             <ambientLight intensity={0.5} />
             <directionalLight
@@ -74,7 +73,13 @@ export function BrainCanvas({ className = "" }: BrainCanvasProps) {
         </Suspense>
       </div>
       <p className="mt-3 text-center font-mono text-[10px] text-[var(--color-text-muted)] px-2">
-        {BRAIN_CREDIT}
+        <a href="https://sketchfab.com/Yash_Dandavate" target="_blank" rel="noreferrer" className="hover:text-[var(--color-accent)]">
+          Human Brain — Yash_Dandavate
+        </a>
+        {" · "}
+        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer" className="hover:text-[var(--color-accent)]">
+          CC BY 4.0
+        </a>
       </p>
     </div>
   );

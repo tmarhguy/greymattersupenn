@@ -6,6 +6,10 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import articles from "@/data/articles.json";
 
+export function generateStaticParams() {
+  return articles.map(({ slug }) => ({ slug }));
+}
+
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const article = articles.find((a) => a.slug === slug);

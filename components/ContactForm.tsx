@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-const ROLES = ["Writer", "Artist", "Editor", "Podcast Host", "Chapter Lead", "Developer"] as const;
+const ROLES = ["Writer", "Artist", "Editor", "Podcast Host", "Developer"] as const;
 
 export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");

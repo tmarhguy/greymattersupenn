@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   motion,
   useScroll,
@@ -78,6 +78,7 @@ function NetworkNode({
 
 export function NeuronNetworkSection() {
   const containerRef = useRef<HTMLElement>(null);
+  const [visualReady, setVisualReady] = useState(false);
 
   const { nodes, edges } = useMemo(
     () => generateNeuronNetwork(NODE_COUNT),
@@ -90,8 +91,17 @@ export function NeuronNetworkSection() {
   });
 
   const animationProgress = useTransform(scrollYProgress, [0, 0.75], [0, 1]);
-  const headlineOpacity = useTransform(scrollYProgress, [0.45, 0.65], [0, 1]);
+  const networkOpacity = useTransform(scrollYProgress, [0.7, 1], [1, 0]);
+  const headlineOpacity = useTransform(
+    scrollYProgress,
+    [0.45, 0.65, 0.82, 1],
+    [0, 1, 1, 0]
+  );
   const headlineY = useTransform(scrollYProgress, [0.45, 0.65], [24, 0]);
+
+  useEffect(() => {
+    setVisualReady(true);
+  }, []);
 
   return (
     <section
@@ -109,11 +119,12 @@ export function NeuronNetworkSection() {
           }}
         />
 
-        <svg
+        <motion.svg
           className="absolute inset-0 w-full h-full"
           viewBox="0 0 100 100"
           preserveAspectRatio="xMidYMid slice"
           aria-hidden="true"
+          style={{ opacity: networkOpacity }}
         >
           <defs>
             <radialGradient id="neuron-glow" cx="50%" cy="50%" r="50%">
@@ -122,7 +133,7 @@ export function NeuronNetworkSection() {
             </radialGradient>
           </defs>
 
-          {edges.map((edge, i) => {
+          {visualReady && edges.map((edge, i) => {
             const edgeStart = i / edges.length;
             const edgeEnd = Math.min(1, edgeStart + 0.015);
 
@@ -138,7 +149,7 @@ export function NeuronNetworkSection() {
             );
           })}
 
-          {nodes.map((node, i) => {
+          {visualReady && nodes.map((node, i) => {
             const nodeStart = (i / nodes.length) * 0.85;
             const nodeEnd = Math.min(1, nodeStart + 0.02);
 
@@ -152,7 +163,7 @@ export function NeuronNetworkSection() {
               />
             );
           })}
-        </svg>
+        </motion.svg>
 
         <motion.div
           className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center pointer-events-none"

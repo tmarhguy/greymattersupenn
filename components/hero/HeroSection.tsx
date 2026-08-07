@@ -82,19 +82,19 @@ export function HeroSection({ expanded = false }: HeroSectionProps) {
               }}
             />
           ))}
-          {[...Array(14)].map((_, i) => (
+          {[...Array(34)].map((_, i) => (
             <motion.div
               key={`red-${i}`}
               className="absolute rounded-full bg-red-400"
               style={{
-                width: i % 3 === 0 ? 5 : 3,
-                height: i % 3 === 0 ? 5 : 3,
+                width: i % 3 === 0 ? 9 : 5,
+                height: i % 3 === 0 ? 9 : 5,
                 left: `${9 + (i * 13.1) % 82}%`,
                 top: `${6 + (i * 17.3) % 86}%`,
               }}
               animate={{
-                opacity: [0.06, 0.2, 0.06],
-                scale: [1, 1.2, 1],
+                opacity: [0.2, 0.55, 0.2],
+                scale: [1, 1.4, 1],
               }}
               transition={{
                 duration: 5 + (i % 3),
@@ -219,12 +219,6 @@ export function HeroSection({ expanded = false }: HeroSectionProps) {
                   className="inline-flex items-center justify-center px-8 py-3.5 rounded-[var(--radius-md)] bg-[var(--color-accent)] text-[var(--color-bg)] font-mono text-sm uppercase tracking-wider hover:bg-[var(--color-accent)]/90 transition-all hover:scale-[1.02]"
                 >
                   Explore Articles
-                </Link>
-                <Link
-                  href="/explore"
-                  className="inline-flex items-center justify-center px-8 py-3.5 rounded-[var(--radius-md)] border border-[var(--color-accent)]/50 text-[var(--color-accent)] font-mono text-sm uppercase tracking-wider hover:bg-[var(--color-accent)]/10 transition-all"
-                >
-                  Grey Matter
                 </Link>
               </motion.div>
             </>

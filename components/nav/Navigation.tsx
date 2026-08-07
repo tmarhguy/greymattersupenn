@@ -3,12 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/articles", label: "Articles" },
-  { href: "/explore", label: "Grey Matter" },
   { href: "/podcast", label: "Podcast" },
   { href: "/research", label: "Research" },
   { href: "/chapters", label: "Chapters" },
@@ -66,30 +64,23 @@ export function Navigation() {
       </div>
 
       {/* Mobile menu */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden overflow-hidden"
-          >
-            <ul className="flex flex-col gap-[var(--space-md)] py-[var(--space-lg)] font-mono text-sm uppercase text-[var(--color-text-muted)]" style={{ letterSpacing: "0.08em" }}>
-              {navLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="block hover:text-[var(--color-accent)] transition-colors"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {mobileOpen && (
+        <div className="md:hidden overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+          <ul className="flex flex-col gap-[var(--space-md)] py-[var(--space-lg)] font-mono text-sm uppercase text-[var(--color-text-muted)]" style={{ letterSpacing: "0.08em" }}>
+            {navLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className="block hover:text-[var(--color-accent)] transition-colors"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </nav>
   );
 }

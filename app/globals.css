@@ -11,10 +11,10 @@
   --color-text-primary: #F5F5F5;
   --color-text-muted: #A0A0A0;
 
-  /* Apple serif fonts (New York) - all text serif */
-  --font-display: "New York", "Times New Roman", Georgia, serif;
-  --font-body: "New York", "Times New Roman", Georgia, serif;
-  --font-mono: "New York", "Times New Roman", Georgia, serif;
+  /* Rounded sans-serif fonts */
+  --font-display: var(--font-nunito), "Nunito", system-ui, sans-serif;
+  --font-body: var(--font-nunito), "Nunito", system-ui, sans-serif;
+  --font-mono: var(--font-mplus-rounded), "M PLUS Rounded 1c", system-ui, sans-serif;
 
   /* Typography scale */
   --text-xs: 0.75rem;      /* 12px */
@@ -98,7 +98,7 @@
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
 }
 
-/* Base typography - all serif */
+/* Base typography */
 html {
   font-family: var(--font-body);
 }
@@ -112,7 +112,7 @@ body {
   letter-spacing: var(--tracking-normal);
 }
 
-/* Ensure inputs, buttons, selects inherit serif */
+/* Ensure inputs, buttons, selects inherit body font */
 input, button, select, textarea, label {
   font-family: inherit;
 }
@@ -174,4 +174,29 @@ h3, .text-h3 {
 /* Paragraph spacing */
 p + p {
   margin-top: var(--space-md);
+}
+
+/* Continuous articles marquee */
+@keyframes articles-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.articles-marquee-track {
+  animation: articles-marquee linear infinite;
+  will-change: transform;
+}
+
+.articles-marquee:hover .articles-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .articles-marquee-track {
+    animation: none;
+  }
 }

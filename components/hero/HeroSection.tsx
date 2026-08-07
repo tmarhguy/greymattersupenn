@@ -61,13 +61,15 @@ export function HeroSection({ expanded = false }: HeroSectionProps) {
         </svg>
         {/* Floating neural nodes - subtle accent */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(8)].map((_, i) => (
+          {[...Array(28)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]"
+              className="absolute rounded-full bg-[var(--color-accent)]"
               style={{
-                left: `${10 + (i * 12) % 80}%`,
-                top: `${25 + (i * 9) % 55}%`,
+                width: i % 3 === 0 ? 6 : 4,
+                height: i % 3 === 0 ? 6 : 4,
+                left: `${5 + (i * 7.3) % 90}%`,
+                top: `${8 + (i * 11.7) % 84}%`,
               }}
               animate={{
                 opacity: [0.15, 0.4, 0.15],
@@ -107,13 +109,24 @@ export function HeroSection({ expanded = false }: HeroSectionProps) {
             <Image
               src="/main-image.png"
               alt="Penn Grey Matters"
-              width={200}
-              height={123}
-              className="relative w-40 h-[98px] md:w-[200px] md:h-[123px] object-contain drop-shadow-[0_0_24px_rgba(0,229,255,0.3)]"
+              width={560}
+              height={344}
+              className="relative w-[448px] h-[275px] md:w-[560px] md:h-[344px] object-contain drop-shadow-[0_0_24px_rgba(0,229,255,0.3)]"
               priority
             />
           </div>
         </div>
+        <motion.blockquote
+          className="font-display text-base md:text-lg font-light italic text-[var(--color-text-muted)] max-w-md mx-auto mt-4 mb-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: expanded ? 0.15 : 0.5, duration: 0.6 }}
+        >
+          &ldquo;The brain is wider than the sky.&rdquo;
+          <footer className="font-mono text-xs not-italic text-[var(--color-accent)]/70 mt-2 tracking-wider">
+            — Emily Dickinson
+          </footer>
+        </motion.blockquote>
         {/* Minimal state: matches preloader exactly */}
         {!expanded ? (
           <>

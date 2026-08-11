@@ -12,12 +12,44 @@ type SceneProps = {
   children: React.ReactNode;
 };
 
-const driftNodes = Array.from({ length: 110 }, (_, i) => ({
-  left: 6 + ((i * 17.3) % 88),
-  top: 8 + ((i * 29.7) % 82),
-  size: i % 5 === 0 ? 15 : i % 3 === 0 ? 9 : 5,
-  red: i % 2 === 0,
-}));
+const CONTINENTS = [
+  {
+    id: "north-america",
+    color: "#22d3ee",
+    paths: ["M20 24L30 16L44 17L58 24L61 33L54 39L46 37L40 44L30 42L27 35L20 32Z"],
+    nodes: [[22, 27], [30, 24], [37, 18], [45, 21], [54, 24], [31, 33], [42, 32], [52, 34]],
+  },
+  {
+    id: "south-america",
+    color: "#a78bfa",
+    paths: ["M57 48L68 50L75 59L73 70L68 83L62 79L60 67L54 59Z"],
+    nodes: [[63, 55], [69, 57], [65, 63], [69, 69], [66, 78]],
+  },
+  {
+    id: "europe",
+    color: "#f4d35e",
+    paths: ["M91 25L101 21L113 24L116 31L109 35L99 33L94 36L89 31Z"],
+    nodes: [[96, 27], [102, 24], [109, 27], [102, 30], [109, 37]],
+  },
+  {
+    id: "africa",
+    color: "#fb7185",
+    paths: ["M96 39L111 37L120 47L117 64L108 76L99 65L94 50Z"],
+    nodes: [[101, 45], [110, 44], [115, 50], [106, 53], [111, 60], [107, 68]],
+  },
+  {
+    id: "asia",
+    color: "#38bdf8",
+    paths: ["M119 25L138 18L165 23L181 33L174 48L160 53L148 47L137 51L127 44L119 36Z"],
+    nodes: [[124, 28], [134, 24], [144, 24], [154, 23], [164, 27], [174, 32], [132, 35], [143, 39], [156, 38], [168, 40], [148, 56]],
+  },
+  {
+    id: "australia",
+    color: "#2dd4bf",
+    paths: ["M160 66L177 64L185 72L178 80L164 78L157 72Z"],
+    nodes: [[165, 72], [172, 69], [178, 73], [174, 77]],
+  },
+] as const;
 
 type Point = readonly [number, number];
 type SynapseConnection = readonly [Point, Point];
@@ -51,11 +83,65 @@ function Scene({ progress, start, end, label, title, children }: SceneProps) {
         <p className="font-mono text-xs uppercase tracking-[0.3em] text-[var(--color-accent)] mb-4">
           {label}
         </p>
-        <h2 className="font-display text-3xl md:text-5xl font-light text-[var(--color-text-primary)] max-w-2xl">
+        <h2 className="font-display text-2xl sm:text-3xl md:text-5xl leading-tight font-light text-[var(--color-text-primary)] max-w-[20rem] sm:max-w-xl md:max-w-2xl text-balance">
           {title}
         </h2>
       </motion.div>
     </motion.div>
+  );
+}
+
+function NeonWorldMap() {
+  return (
+    <svg
+      className="absolute inset-0 h-full w-full"
+      viewBox="0 0 200 100"
+      preserveAspectRatio="xMidYMid meet"
+      aria-hidden="true"
+    >
+      <defs>
+        <filter id="world-glow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="1.1" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      {CONTINENTS.map((continent) => (
+        <g key={continent.id} filter="url(#world-glow)">
+          {continent.paths.map((path) => (
+            <path
+              key={path}
+              d={path}
+              fill={continent.color}
+              fillOpacity="0.08"
+              stroke={continent.color}
+              strokeOpacity="0.55"
+              strokeWidth="0.45"
+            />
+          ))}
+          {continent.nodes.map(([cx, cy], index) => (
+            <motion.circle
+              key={`${continent.id}-${index}`}
+              cx={cx}
+              cy={cy}
+              fill={continent.color}
+              animate={{
+                opacity: [0.25, 1, 0.25],
+                r: [0.55, index % 3 === 0 ? 1.45 : 1.05, 0.55],
+              }}
+              transition={{
+                duration: 2.4 + (index % 3) * 0.45,
+                delay: index * 0.22 + CONTINENTS.findIndex((item) => item.id === continent.id) * 0.35,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+        </g>
+      ))}
+    </svg>
   );
 }
 
@@ -163,17 +249,7 @@ export function NeuralExperimentsSection() {
         />
 
         {visualReady && <Scene progress={scrollYProgress} start={0} end={0.58} label="Curiosity in motion" title="Making neuroscience accessible, one question at a time.">
-          <div className="absolute inset-0" aria-hidden="true">
-            {driftNodes.map((node, i) => (
-              <motion.div
-                key={i}
-                className={`absolute rounded-full ${node.red ? "bg-red-400" : "bg-[var(--color-accent)]"}`}
-                style={{ left: `${node.left}%`, top: `${node.top}%`, width: node.size, height: node.size }}
-                animate={{ x: [0, i % 2 ? 90 : -90, 0], y: [0, i % 3 ? -55 : 55, 0], opacity: [0.25, 0.95, 0.25], scale: [1, i % 4 === 0 ? 2 : 1.45, 1] }}
-                transition={{ duration: 3.2 + (i % 4) * 0.55, delay: i * 0.07, repeat: Infinity, ease: "easeInOut" }}
-              />
-            ))}
-          </div>
+          <NeonWorldMap />
         </Scene>}
 
         {visualReady && <Scene progress={scrollYProgress} start={0.68} end={1} label="Knowledge in connection" title="Every discovery begins with a shared spark.">

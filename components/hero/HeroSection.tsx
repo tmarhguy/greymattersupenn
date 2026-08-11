@@ -61,7 +61,7 @@ export function HeroSection({ expanded = false }: HeroSectionProps) {
         </svg>
         {/* Floating neural nodes - subtle accent */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(28)].map((_, i) => (
+          {[...Array(42)].map((_, i) => (
             <motion.div
               key={i}
               className="absolute rounded-full bg-[var(--color-accent)]"
@@ -82,24 +82,60 @@ export function HeroSection({ expanded = false }: HeroSectionProps) {
               }}
             />
           ))}
-          {[...Array(34)].map((_, i) => (
+          {/* Red and blue nodes breathe independently, like active neural signals. */}
+          {[...Array(52)].map((_, i) => (
             <motion.div
               key={`red-${i}`}
               className="absolute rounded-full bg-red-400"
               style={{
-                width: i % 3 === 0 ? 9 : 5,
-                height: i % 3 === 0 ? 9 : 5,
-                left: `${9 + (i * 13.1) % 82}%`,
-                top: `${6 + (i * 17.3) % 86}%`,
+                width: i % 4 === 0 ? 10 : 5,
+                height: i % 4 === 0 ? 10 : 5,
+                left: `${4 + (i * 13.1) % 92}%`,
+                top: `${4 + (i * 17.3) % 90}%`,
               }}
               animate={{
-                opacity: [0.2, 0.55, 0.2],
-                scale: [1, 1.4, 1],
+                opacity: [0.16, 0.8, 0.22, 0.16],
+                scale: [0.65, 1.65, 0.9, 0.65],
+                boxShadow: [
+                  "0 0 0px rgba(248, 113, 113, 0)",
+                  "0 0 16px 5px rgba(248, 113, 113, 0.75)",
+                  "0 0 5px 1px rgba(248, 113, 113, 0.3)",
+                  "0 0 0px rgba(248, 113, 113, 0)",
+                ],
               }}
               transition={{
-                duration: 5 + (i % 3),
+                duration: 3.6 + (i % 4) * 0.55,
                 repeat: Infinity,
-                delay: i * 0.45,
+                delay: i * 0.17,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+          {[...Array(52)].map((_, i) => (
+            <motion.div
+              key={`blue-${i}`}
+              className="absolute rounded-full bg-sky-400"
+              style={{
+                width: i % 4 === 0 ? 10 : 5,
+                height: i % 4 === 0 ? 10 : 5,
+                left: `${3 + (i * 19.7) % 94}%`,
+                top: `${5 + (i * 12.9) % 89}%`,
+              }}
+              animate={{
+                opacity: [0.14, 0.82, 0.2, 0.14],
+                scale: [0.6, 1.7, 0.85, 0.6],
+                boxShadow: [
+                  "0 0 0px rgba(56, 189, 248, 0)",
+                  "0 0 17px 5px rgba(56, 189, 248, 0.8)",
+                  "0 0 5px 1px rgba(56, 189, 248, 0.3)",
+                  "0 0 0px rgba(56, 189, 248, 0)",
+                ],
+              }}
+              transition={{
+                duration: 3.3 + (i % 5) * 0.5,
+                repeat: Infinity,
+                delay: i * 0.14 + 0.35,
+                ease: "easeInOut",
               }}
             />
           ))}
@@ -112,6 +148,37 @@ export function HeroSection({ expanded = false }: HeroSectionProps) {
           className={expanded ? "mb-8 flex justify-center" : "mb-6 flex justify-center"}
         >
           <div className="relative inline-block">
+            {/* Slow-moving blue light gives the brain a fluid, underwater-like halo. */}
+            <motion.div
+              aria-hidden="true"
+              className="absolute -inset-10 md:-inset-16 rounded-full blur-3xl pointer-events-none"
+              style={{
+                background:
+                  "radial-gradient(ellipse at 35% 45%, rgba(56, 189, 248, 0.42) 0%, rgba(14, 116, 144, 0.2) 38%, transparent 72%)",
+              }}
+              animate={{
+                scale: [0.92, 1.1, 0.97, 0.92],
+                x: [-10, 14, -4, -10],
+                y: [6, -10, 9, 6],
+                opacity: [0.45, 0.8, 0.58, 0.45],
+              }}
+              transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              aria-hidden="true"
+              className="absolute -inset-8 md:-inset-12 rounded-full blur-2xl pointer-events-none mix-blend-screen"
+              style={{
+                background:
+                  "radial-gradient(ellipse at 70% 55%, rgba(0, 229, 255, 0.28) 0%, transparent 62%)",
+              }}
+              animate={{
+                scale: [1.08, 0.9, 1.06, 1.08],
+                x: [10, -14, 8, 10],
+                y: [-5, 12, -7, -5],
+                opacity: [0.25, 0.65, 0.35, 0.25],
+              }}
+              transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
+            />
             <AnimatePresence>
               {expanded && (
                 <motion.div
@@ -127,14 +194,20 @@ export function HeroSection({ expanded = false }: HeroSectionProps) {
                 />
               )}
             </AnimatePresence>
-            <Image
-              src="/main-image.png"
-              alt="Penn Grey Matters"
-              width={560}
-              height={344}
-              className="relative w-[448px] h-[275px] md:w-[560px] md:h-[344px] object-contain drop-shadow-[0_0_24px_rgba(0,229,255,0.3)]"
-              priority
-            />
+            <motion.div
+              className="relative"
+              animate={{ scale: [1, 1.018, 1] }}
+              transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <Image
+                src="/main-image.png"
+                alt="Penn Grey Matters"
+                width={560}
+                height={344}
+                className="w-[448px] h-[275px] md:w-[560px] md:h-[344px] object-contain drop-shadow-[0_0_24px_rgba(0,229,255,0.3)]"
+                priority
+              />
+            </motion.div>
           </div>
         </div>
         <motion.blockquote

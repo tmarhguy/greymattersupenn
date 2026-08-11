@@ -5,6 +5,70 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import articles from "@/data/articles.json";
+import { articleBodies } from "@/data/article-bodies";
+
+const sectionHeadings = new Set([
+  "What is Intellectual Prime?",
+  "Neurological Basis of Intelligence",
+  "Psychological Basis of Intelligence",
+  "Can intelligence be improved?",
+]);
+
+function ArticleBody({ slug }: { slug: string }) {
+  const body = articleBodies[slug];
+
+  if (!body) {
+    return (
+      <p className="text-[var(--color-text-primary)]">
+        Full article content will be available soon.
+      </p>
+    );
+  }
+
+  const [articleText, referencesText] = body.split("\n\nZiegler P. The Black Death.");
+  const blocks = articleText.split(/\n\s*\n/).slice(1);
+  const references = referencesText
+    ? ["Ziegler P. The Black Death." + referencesText]
+        .join("")
+        .split("\n")
+        .filter(Boolean)
+    : [];
+
+  return (
+    <>
+      {blocks.map((block, index) => {
+        const text = block.replace(/\s*\n\s*/g, " ").trim();
+        if (!text) return null;
+
+        if (sectionHeadings.has(text)) {
+          return (
+            <h2
+              key={index}
+              className="font-display text-3xl font-light text-[var(--color-text-primary)] mt-14 mb-5"
+            >
+              {text}
+            </h2>
+          );
+        }
+
+        return <p key={index}>{text}</p>;
+      })}
+
+      {references.length > 0 && (
+        <section className="mt-16 border-t border-[var(--color-border)] pt-10" aria-labelledby="references-title">
+          <h2 id="references-title" className="font-display text-3xl font-light text-[var(--color-text-primary)] mb-6">
+            References
+          </h2>
+          <ol className="list-decimal space-y-3 pl-6 text-base">
+            {references.map((reference, index) => (
+              <li key={index}>{reference}</li>
+            ))}
+          </ol>
+        </section>
+      )}
+    </>
+  );
+}
 
 export function generateStaticParams() {
   return articles.map(({ slug }) => ({ slug }));
@@ -72,12 +136,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <div className="px-4 md:px-8 mt-12">
             <div className="max-w-[var(--content-max)] mx-auto">
               <div className="font-body text-[var(--color-text-muted)] text-lg leading-relaxed prose prose-invert max-w-none">
-                <p className="text-[var(--color-text-primary)]">
-                  Full article content will be loaded from Sanity CMS. This article is part of the Penn Grey Matters archive.
-                </p>
-                <p className="mt-4 text-[var(--color-text-muted)]">
-                  Visit the live site at greymattersjournalpenn.org to read the complete article, or check back soon as we migrate all content.
-                </p>
+                <ArticleBody slug={article.slug} />
               </div>
             </div>
           </div>

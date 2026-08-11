@@ -5,6 +5,7 @@ import { Navigation } from "@/components/nav/Navigation";
 import { Preloader } from "@/components/Preloader";
 import { HeroSection } from "@/components/hero/HeroSection";
 import { ArticlesRow } from "@/components/articles/ArticlesRow";
+import { SocialFeature } from "@/components/SocialFeature";
 import { NeuronNetworkSection } from "@/components/neuron-network/NeuronNetworkSection";
 import { NeuralExperimentsSection } from "@/components/neural-experiments/NeuralExperimentsSection";
 import { BrainStatsSection } from "@/components/explore/BrainStatsSection";
@@ -32,6 +33,7 @@ export default function HomePage() {
         <HeroSection expanded={heroExpanded} />
         <Preloader visible={preloaderVisible} />
         <ArticlesRow articles={articles} />
+        <SocialFeature />
         <NeuronNetworkSection />
         <NeuralExperimentsSection />
         <BrainStatsSection />

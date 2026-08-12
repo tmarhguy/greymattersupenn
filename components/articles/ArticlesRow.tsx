@@ -57,7 +57,7 @@ function ArticleCard({ article }: { article: Article }) {
             </p>
             <div className="flex items-center justify-between mt-4 pt-3 border-t border-[var(--color-accent)]/10">
               <span className="font-mono text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">
-                {article.readingTime} min read
+                {article.comingSoon ? "Article forthcoming" : `${article.readingTime} min read`}
               </span>
               <span className="font-mono text-[10px] text-[var(--color-accent)] uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
                 Read →
@@ -130,7 +130,7 @@ export function ArticlesRow({ articles }: ArticlesRowProps) {
               {featuredArticle.excerpt}
             </p>
             <p className="font-mono text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] mt-6">
-              By {featuredArticle.author} · {formatPublishedDate(featuredArticle.publishedAt)} · {featuredArticle.readingTime} min read
+              By {featuredArticle.author} · {formatPublishedDate(featuredArticle.publishedAt)} · {featuredArticle.comingSoon ? "Article forthcoming" : `${featuredArticle.readingTime} min read`}
             </p>
             <Link href={`/articles/${featuredArticle.slug}`} className="inline-block font-mono text-xs uppercase tracking-wider text-[var(--color-accent)] mt-5 hover:text-[var(--color-text-primary)] transition-colors">
               Read the story →

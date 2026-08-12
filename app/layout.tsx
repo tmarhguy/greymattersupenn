@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Libre_Baskerville, Nunito, M_PLUS_Rounded_1c } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -54,7 +53,6 @@ export default function RootLayout({
       <body className="antialiased">
         <div className="grain-overlay" aria-hidden="true" />
         {children}
-        <Analytics />
       </body>
     </html>
   );

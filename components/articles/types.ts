@@ -7,6 +7,7 @@ export type Article = {
   author: string;
   artist: string;
   readingTime: number;
+  comingSoon?: boolean;
   publishedAt: string;
   image: string;
   featured?: boolean;

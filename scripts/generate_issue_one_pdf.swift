@@ -36,6 +36,7 @@ struct ArticleTheme {
 let fileManager = Foundation.FileManager.default
 let root = URL(fileURLWithPath: fileManager.currentDirectoryPath)
 let outputURL = root.appendingPathComponent("output/issue-one/grey-matters-penn-issue-one.pdf")
+let singlePagesURL = root.appendingPathComponent("output/issue-one/grey-matters-penn-issue-one-single-pages.pdf")
 try fileManager.createDirectory(at: outputURL.deletingLastPathComponent(), withIntermediateDirectories: true)
 
 let metadataData = try Data(contentsOf: root.appendingPathComponent("data/articles.json"))
@@ -119,6 +120,25 @@ let paper = NSColor(calibratedRed: 0.965, green: 0.955, blue: 0.925, alpha: 1)
 let ink = NSColor(calibratedRed: 0.045, green: 0.10, blue: 0.14, alpha: 1)
 var pageNumber = 0
 
+let contributorSymbols: [String: String] = [
+    "Elgin Tawiah": "brain", "Jeffrey Batres": "neuron", "Allen Phuong": "dna",
+    "Augustus Clarke": "microscope", "Emmanuel Tawiah": "synapse", "Hans Manish": "vision",
+    "Ian Peng": "cortex", "Isabelle Chen": "hearing", "Livia De La Rosa": "memory",
+    "Zaid Alawa": "network", "Alexandra Gilfond": "molecule", "Asim Handy": "action potential",
+    "Maria Costea": "glia", "Elias Mekuriaw": "circadian clock", "Jessica Anyanwu": "language",
+]
+
+func canonicalName(_ name: String) -> String {
+    name == "Jeffery Batres" ? "Jeffrey Batres" : name
+}
+
+func authorNames(_ names: String) -> [String] {
+    let range = NSRange(names.startIndex..., in: names)
+    let separated = try! NSRegularExpression(pattern: "\\s+and\\s+|,\\s*")
+        .stringByReplacingMatches(in: names, range: range, withTemplate: "|")
+    return separated.components(separatedBy: "|").filter { !$0.isEmpty }
+}
+
 func font(_ size: CGFloat, weight: NSFont.Weight = .regular) -> NSFont {
     NSFont.systemFont(ofSize: size, weight: weight)
 }
@@ -131,7 +151,7 @@ func paragraphStyle(lineHeight: CGFloat, spacing: CGFloat = 0) -> NSMutableParag
     return style
 }
 
-guard let consumer = CGDataConsumer(url: outputURL as CFURL),
+guard let consumer = CGDataConsumer(url: singlePagesURL as CFURL),
       var box = Optional(CGRect(origin: .zero, size: page)),
       let context = CGContext(consumer: consumer, mediaBox: &box, nil) else {
     fatalError("Unable to create PDF")
@@ -160,7 +180,7 @@ func drawImage(_ path: String, in rect: NSRect) {
     image.draw(in: target, from: NSRect.zero, operation: NSCompositingOperation.sourceOver, fraction: 1)
 }
 
-func drawImageCover(_ path: String, in rect: NSRect) {
+func drawImageCover(_ path: String, in rect: NSRect, fraction: CGFloat = 1) {
     let url = root.appendingPathComponent(path.hasPrefix("/") ? "public" + path : path)
     guard let image = NSImage(contentsOf: url) else { return }
     let scale = max(rect.width / image.size.width, rect.height / image.size.height)
@@ -169,7 +189,7 @@ func drawImageCover(_ path: String, in rect: NSRect) {
     let source = NSRect(x: (image.size.width - sourceWidth) / 2, y: (image.size.height - sourceHeight) / 2, width: sourceWidth, height: sourceHeight)
     NSGraphicsContext.saveGraphicsState()
     NSBezierPath(rect: rect).addClip()
-    image.draw(in: rect, from: source, operation: NSCompositingOperation.sourceOver, fraction: 1)
+    image.draw(in: rect, from: source, operation: NSCompositingOperation.sourceOver, fraction: fraction)
     NSGraphicsContext.restoreGraphicsState()
 }
 
@@ -183,54 +203,63 @@ func drawImageFrame(_ path: String, in rect: NSRect) {
     border.stroke()
 }
 
-func organicImagePath(in rect: NSRect, variant: Int) -> NSBezierPath {
-    let path = NSBezierPath()
-    let points: [NSPoint]
-    switch variant % 3 {
-    case 1:
-        points = [
-            NSPoint(x: rect.minX + rect.width * 0.08, y: rect.minY + rect.height * 0.05),
-            NSPoint(x: rect.minX + rect.width * 0.92, y: rect.minY),
-            NSPoint(x: rect.maxX, y: rect.minY + rect.height * 0.42),
-            NSPoint(x: rect.minX + rect.width * 0.88, y: rect.maxY),
-            NSPoint(x: rect.minX + rect.width * 0.12, y: rect.minY + rect.height * 0.94),
-            NSPoint(x: rect.minX, y: rect.minY + rect.height * 0.46),
-        ]
-    case 2:
-        points = [
-            NSPoint(x: rect.minX, y: rect.minY + rect.height * 0.18),
-            NSPoint(x: rect.minX + rect.width * 0.70, y: rect.minY),
-            NSPoint(x: rect.maxX, y: rect.minY + rect.height * 0.28),
-            NSPoint(x: rect.minX + rect.width * 0.94, y: rect.minY + rect.height * 0.90),
-            NSPoint(x: rect.minX + rect.width * 0.35, y: rect.maxY),
-            NSPoint(x: rect.minX + rect.width * 0.04, y: rect.minY + rect.height * 0.72),
-        ]
-    default:
-        points = [
-            NSPoint(x: rect.minX + rect.width * 0.12, y: rect.minY),
-            NSPoint(x: rect.minX + rect.width * 0.86, y: rect.minY + rect.height * 0.04),
-            NSPoint(x: rect.maxX, y: rect.minY + rect.height * 0.58),
-            NSPoint(x: rect.minX + rect.width * 0.74, y: rect.maxY),
-            NSPoint(x: rect.minX + rect.width * 0.08, y: rect.minY + rect.height * 0.88),
-            NSPoint(x: rect.minX, y: rect.minY + rect.height * 0.32),
-        ]
-    }
-    path.move(to: points[0])
-    for index in points.indices {
-        let current = points[index]
-        let next = points[(index + 1) % points.count]
-        let midpoint = NSPoint(x: (current.x + next.x) / 2, y: (current.y + next.y) / 2)
-        path.curve(to: midpoint, controlPoint1: current, controlPoint2: current)
-    }
-    path.close()
-    return path
+func drawBlendedImage(_ path: String, in rect: NSRect, background: NSColor, variant: Int) {
+    drawImageCover(path, in: rect)
 }
 
-func drawBlendedImage(_ path: String, in rect: NSRect, background: NSColor, variant: Int) {
+func drawClippedCover(_ path: String, rect: NSRect, clip: NSBezierPath) {
     NSGraphicsContext.saveGraphicsState()
-    organicImagePath(in: rect, variant: variant).addClip()
+    clip.addClip()
     drawImageCover(path, in: rect)
     NSGraphicsContext.restoreGraphicsState()
+}
+
+func drawSpreadImageHalf(_ path: String, spreadHalf: Int) {
+    let url = root.appendingPathComponent(path.hasPrefix("/") ? "public" + path : path)
+    guard let image = NSImage(contentsOf: url) else { return }
+    let spreadSize = NSSize(width: page.width * 2, height: page.height)
+    let scale = max(spreadSize.width / image.size.width, spreadSize.height / image.size.height)
+    let sourceWidth = spreadSize.width / scale
+    let sourceHeight = spreadSize.height / scale
+    let fullSource = NSRect(
+        x: (image.size.width - sourceWidth) / 2,
+        y: (image.size.height - sourceHeight) / 2,
+        width: sourceWidth,
+        height: sourceHeight
+    )
+    let halfSource = NSRect(
+        x: fullSource.minX + CGFloat(spreadHalf) * fullSource.width / 2,
+        y: fullSource.minY,
+        width: fullSource.width / 2,
+        height: fullSource.height
+    )
+    image.draw(in: NSRect(origin: .zero, size: page), from: halfSource, operation: .sourceOver, fraction: 1)
+}
+
+func drawArticleOpenerArtwork(_ article: Article) {
+    let artRect = NSRect(x: 0, y: 235, width: page.width, height: page.height - 235)
+    drawImageCover(article.image, in: artRect)
+}
+
+func drawContentMotif(slug: String, accent: NSColor) {
+    accent.withAlphaComponent(0.085).setStroke()
+    accent.withAlphaComponent(0.055).setFill()
+    if slug == "the-accelerating-clock" {
+        return
+    }
+    if slug == "written-in-our-genes" {
+        for y in stride(from: CGFloat(90), through: 720, by: 42) { let rung=NSBezierPath(); rung.move(to:NSPoint(x:18,y:y)); rung.curve(to:NSPoint(x:594,y:y+18),controlPoint1:NSPoint(x:180,y:y+55),controlPoint2:NSPoint(x:430,y:y-35)); rung.lineWidth=0.8; rung.stroke() }
+    } else if slug == "altered-mitochondrial-trafficking" {
+        for i in 0..<6 { NSBezierPath(ovalIn:NSRect(x:CGFloat(-30+i*125),y:CGFloat(62+(i%2)*610),width:90,height:48)).fill() }
+    } else if slug == "the-shrinking-brain" {
+        for i in 0..<5 { let ring=NSBezierPath(ovalIn:NSRect(x:CGFloat(-110+i*18),y:CGFloat(120+i*22),width:CGFloat(320-i*36),height:CGFloat(320-i*36))); ring.lineWidth=1; ring.stroke() }
+    } else if slug == "thinking-in-tongues" {
+        for i in 0..<5 { let bubble=NSBezierPath(roundedRect:NSRect(x:CGFloat(470+i*18),y:CGFloat(95+i*130),width:100,height:54),xRadius:24,yRadius:24); bubble.lineWidth=1; bubble.stroke() }
+    } else if slug == "feeling-our-age" {
+        for i in 0..<10 { NSBezierPath(roundedRect:NSRect(x:CGFloat(i*68-18),y:735,width:44,height:CGFloat(24+(i%4)*17)),xRadius:22,yRadius:22).fill() }
+    } else {
+        for i in 0..<7 { let neuron=NSBezierPath(); neuron.move(to:NSPoint(x:CGFloat(i*96-12),y:792)); neuron.curve(to:NSPoint(x:CGFloat(i*92+42),y:665),controlPoint1:NSPoint(x:CGFloat(i*100+60),y:760),controlPoint2:NSPoint(x:CGFloat(i*88-20),y:705)); neuron.lineWidth=1.1; neuron.stroke() }
+    }
 }
 
 func drawAvatar(_ path: String, in rect: NSRect) {
@@ -292,6 +321,66 @@ func draw(_ text: String, rect: NSRect, attributes: [NSAttributedString.Key: Any
     NSString(string: text).draw(with: rect, options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: attributes)
 }
 
+func drawContributorIcon(_ name: String, at origin: NSPoint, size: CGFloat, color: NSColor) {
+    let circle = NSBezierPath(ovalIn: NSRect(x: origin.x, y: origin.y, width: size, height: size))
+    color.withAlphaComponent(0.14).setFill()
+    circle.fill()
+    color.withAlphaComponent(0.55).setStroke()
+    circle.lineWidth = 0.6
+    circle.stroke()
+    let symbol = contributorSymbols[canonicalName(name)] ?? "neuron"
+    let center = NSPoint(x: origin.x + size / 2, y: origin.y + size / 2)
+    color.withAlphaComponent(0.82).setStroke()
+    color.setFill()
+    let line = max(0.7, size * 0.055)
+    func stroke(_ path: NSBezierPath) { path.lineWidth = line; path.stroke() }
+    if symbol == "brain" || symbol == "cortex" || symbol == "memory" {
+        let brain = NSBezierPath(roundedRect: NSRect(x: origin.x + size * 0.22, y: origin.y + size * 0.25, width: size * 0.56, height: size * 0.50), xRadius: size * 0.22, yRadius: size * 0.22)
+        stroke(brain)
+        let fold = NSBezierPath(); fold.move(to: NSPoint(x: center.x, y: origin.y + size * 0.27)); fold.curve(to: NSPoint(x: center.x, y: origin.y + size * 0.73), controlPoint1: NSPoint(x: center.x - size * 0.10, y: center.y), controlPoint2: NSPoint(x: center.x + size * 0.10, y: center.y)); stroke(fold)
+        if symbol == "memory" { NSBezierPath(ovalIn: NSRect(x: center.x - size * 0.07, y: center.y - size * 0.07, width: size * 0.14, height: size * 0.14)).fill() }
+    } else if symbol == "dna" {
+        let a = NSBezierPath(); a.move(to: NSPoint(x: origin.x + size * 0.30, y: origin.y + size * 0.22)); a.curve(to: NSPoint(x: origin.x + size * 0.70, y: origin.y + size * 0.78), controlPoint1: NSPoint(x: origin.x + size * 0.80, y: origin.y + size * 0.34), controlPoint2: NSPoint(x: origin.x + size * 0.20, y: origin.y + size * 0.66)); stroke(a)
+        let b = NSBezierPath(); b.move(to: NSPoint(x: origin.x + size * 0.70, y: origin.y + size * 0.22)); b.curve(to: NSPoint(x: origin.x + size * 0.30, y: origin.y + size * 0.78), controlPoint1: NSPoint(x: origin.x + size * 0.20, y: origin.y + size * 0.34), controlPoint2: NSPoint(x: origin.x + size * 0.80, y: origin.y + size * 0.66)); stroke(b)
+    } else if symbol == "vision" {
+        let eye = NSBezierPath(); eye.move(to: NSPoint(x: origin.x + size * 0.18, y: center.y)); eye.curve(to: NSPoint(x: origin.x + size * 0.82, y: center.y), controlPoint1: NSPoint(x: center.x - size * 0.13, y: origin.y + size * 0.74), controlPoint2: NSPoint(x: center.x + size * 0.13, y: origin.y + size * 0.74)); eye.curve(to: NSPoint(x: origin.x + size * 0.18, y: center.y), controlPoint1: NSPoint(x: center.x + size * 0.13, y: origin.y + size * 0.26), controlPoint2: NSPoint(x: center.x - size * 0.13, y: origin.y + size * 0.26)); stroke(eye); NSBezierPath(ovalIn: NSRect(x: center.x-size*0.08,y:center.y-size*0.08,width:size*0.16,height:size*0.16)).fill()
+    } else if symbol == "hearing" {
+        for i in 0..<3 { let arc = NSBezierPath(); arc.appendArc(withCenter: NSPoint(x: origin.x + size * 0.38, y: center.y), radius: size * (0.12 + CGFloat(i)*0.10), startAngle: -65, endAngle: 65); stroke(arc) }
+    } else if symbol == "circadian clock" {
+        stroke(NSBezierPath(ovalIn: NSRect(x: origin.x+size*0.22,y:origin.y+size*0.22,width:size*0.56,height:size*0.56))); let hands=NSBezierPath(); hands.move(to:center); hands.line(to:NSPoint(x:center.x,y:origin.y+size*0.69)); hands.move(to:center); hands.line(to:NSPoint(x:origin.x+size*0.66,y:center.y-size*0.10)); stroke(hands)
+    } else if symbol == "language" {
+        let bubble=NSBezierPath(roundedRect:NSRect(x:origin.x+size*0.18,y:origin.y+size*0.30,width:size*0.64,height:size*0.45),xRadius:size*0.15,yRadius:size*0.15); stroke(bubble); let tail=NSBezierPath(); tail.move(to:NSPoint(x:origin.x+size*0.35,y:origin.y+size*0.31)); tail.line(to:NSPoint(x:origin.x+size*0.27,y:origin.y+size*0.18)); tail.line(to:NSPoint(x:origin.x+size*0.48,y:origin.y+size*0.31)); stroke(tail)
+    } else if symbol == "action potential" {
+        let wave=NSBezierPath(); wave.move(to:NSPoint(x:origin.x+size*0.16,y:center.y)); wave.line(to:NSPoint(x:origin.x+size*0.38,y:center.y)); wave.line(to:NSPoint(x:origin.x+size*0.48,y:origin.y+size*0.75)); wave.line(to:NSPoint(x:origin.x+size*0.58,y:origin.y+size*0.25)); wave.line(to:NSPoint(x:origin.x+size*0.68,y:center.y)); wave.line(to:NSPoint(x:origin.x+size*0.84,y:center.y)); stroke(wave)
+    } else if symbol == "synapse" {
+        let left=NSBezierPath(); left.appendArc(withCenter:NSPoint(x:origin.x+size*0.28,y:center.y),radius:size*0.20,startAngle:-70,endAngle:70); stroke(left); let right=NSBezierPath(); right.appendArc(withCenter:NSPoint(x:origin.x+size*0.72,y:center.y),radius:size*0.20,startAngle:110,endAngle:250); stroke(right); for i in 0..<3 { NSBezierPath(ovalIn:NSRect(x:center.x-size*0.04,y:center.y+CGFloat(i-1)*size*0.16-size*0.04,width:size*0.08,height:size*0.08)).fill() }
+    } else if symbol == "microscope" {
+        let scope=NSBezierPath(); scope.move(to:NSPoint(x:origin.x+size*0.28,y:origin.y+size*0.24)); scope.line(to:NSPoint(x:origin.x+size*0.75,y:origin.y+size*0.24)); scope.move(to:NSPoint(x:origin.x+size*0.42,y:origin.y+size*0.30)); scope.curve(to:NSPoint(x:origin.x+size*0.62,y:origin.y+size*0.62),controlPoint1:NSPoint(x:origin.x+size*0.70,y:origin.y+size*0.32),controlPoint2:NSPoint(x:origin.x+size*0.70,y:origin.y+size*0.55)); scope.line(to:NSPoint(x:origin.x+size*0.54,y:origin.y+size*0.76)); stroke(scope)
+    } else {
+        let nodes = [NSPoint(x:center.x,y:origin.y+size*0.72),NSPoint(x:origin.x+size*0.25,y:origin.y+size*0.35),NSPoint(x:origin.x+size*0.75,y:origin.y+size*0.35)]
+        for node in nodes { let p=NSBezierPath(); p.move(to:center); p.line(to:node); stroke(p); NSBezierPath(ovalIn:NSRect(x:node.x-size*0.055,y:node.y-size*0.055,width:size*0.11,height:size*0.11)).fill() }; NSBezierPath(ovalIn:NSRect(x:center.x-size*0.09,y:center.y-size*0.09,width:size*0.18,height:size*0.18)).fill()
+    }
+}
+
+@discardableResult
+func drawNamesWithIcons(_ names: String, x: CGFloat, y: CGFloat, maxWidth: CGFloat, fontSize: CGFloat, color: NSColor, iconColor: NSColor) -> CGFloat {
+    var cursor = x
+    let iconSize = fontSize + 3
+    let attrs: [NSAttributedString.Key: Any] = [.font: font(fontSize, weight: .semibold), .foregroundColor: color]
+    for (index, name) in authorNames(names).enumerated() {
+        if index > 0 {
+            draw(" & ", rect: NSRect(x: cursor, y: y, width: 18, height: iconSize), attributes: attrs)
+            cursor += 18
+        }
+        drawContributorIcon(name, at: NSPoint(x: cursor, y: y - 1), size: iconSize, color: iconColor)
+        cursor += iconSize + 4
+        let width = min(maxWidth - (cursor - x), ceil(NSString(string: name).size(withAttributes: attrs).width) + 3)
+        draw(name, rect: NSRect(x: cursor, y: y, width: width, height: iconSize + 2), attributes: attrs)
+        cursor += width + 4
+    }
+    return cursor
+}
+
 func bodyText(_ text: String, attributes: [NSAttributedString.Key: Any], citationColor: NSColor = blue) -> NSMutableAttributedString {
     let result = NSMutableAttributedString(string: text, attributes: attributes)
     let patterns = [
@@ -338,7 +427,10 @@ for (index, article) in articles.enumerated() {
     if let subtitle = article.subtitle {
         draw(subtitle, rect: NSRect(x: margin + 44, y: contentsY - 23, width: 430, height: 20), attributes: [.font: font(10), .foregroundColor: muted])
     }
-    draw("Written by \(article.author)  ·  Artwork by \(article.artist)", rect: NSRect(x: margin + 44, y: contentsY - 42, width: 430, height: 16), attributes: [.font: font(8.5, weight: .medium), .foregroundColor: blue])
+    draw("WRITTEN BY", rect: NSRect(x: margin + 44, y: contentsY - 42, width: 62, height: 16), attributes: [.font: font(7, weight: .bold), .foregroundColor: blue, .kern: 0.6])
+    let creditEnd = drawNamesWithIcons(article.author, x: margin + 106, y: contentsY - 43, maxWidth: 230, fontSize: 7.5, color: .white, iconColor: blue)
+    draw("ART  ", rect: NSRect(x: creditEnd, y: contentsY - 42, width: 30, height: 16), attributes: [.font: font(7, weight: .bold), .foregroundColor: blue])
+    _ = drawNamesWithIcons(article.artist, x: creditEnd + 28, y: contentsY - 43, maxWidth: page.width - margin - creditEnd - 28, fontSize: 7.5, color: .white, iconColor: blue)
     contentsY -= 68
 }
 drawPageNumber()
@@ -355,8 +447,10 @@ for (index, member) in team.enumerated() {
     let row = index / 3
     let x = margin + CGFloat(column) * contributorColumnWidth
     let y = 545 - CGFloat(row) * 91
-    draw(member.name, rect: NSRect(x: x, y: y + 10, width: 150, height: 23), attributes: [.font: font(11, weight: .semibold), .foregroundColor: ink])
+    drawContributorIcon(member.name, at: NSPoint(x: x, y: y + 8), size: 22, color: blue)
+    draw(member.name, rect: NSRect(x: x + 29, y: y + 10, width: 121, height: 23), attributes: [.font: font(11, weight: .semibold), .foregroundColor: ink])
     draw(member.role, rect: NSRect(x: x, y: y - 18, width: 150, height: 28), attributes: [.font: font(8), .foregroundColor: NSColor(calibratedWhite: 0.38, alpha: 1), .paragraphStyle: paragraphStyle(lineHeight: 10)])
+    draw((contributorSymbols[member.name] ?? "neuroscience").uppercased(), rect: NSRect(x: x + 29, y: y - 7, width: 121, height: 11), attributes: [.font: font(5.8, weight: .bold), .foregroundColor: blue, .kern: 0.55])
 }
 drawPageNumber(color: ink)
 endPage()
@@ -365,30 +459,36 @@ var collectedReferences: [(article: Article, references: [String])] = []
 
 for (index, article) in articles.enumerated() {
     let theme = themeFromArtwork(article.image)
-    let articlePaper = theme.background
-    let articleAccent = theme.accent
-    let articleInk = ink
+    let isTimeArticle = article.slug == "the-accelerating-clock"
+    let articlePaper = isTimeArticle ? NSColor.black : theme.background
+    let articleAccent = isTimeArticle ? NSColor(calibratedRed: 0.67, green: 0.48, blue: 1.0, alpha: 1) : theme.accent
+    let articleInk = isTimeArticle ? NSColor(calibratedWhite: 0.94, alpha: 1) : ink
 
     // Article opener
-    beginPage(background: articlePaper)
-    drawImage(article.image, in: NSRect(x: 0, y: 448, width: page.width, height: 344))
-    draw("ISSUE ONE  /  \(String(format: "%02d", index + 1))", rect: NSRect(x: margin, y: 380, width: 500, height: 20), attributes: [.font: font(9, weight: .bold), .foregroundColor: articleAccent, .kern: 1.6])
-    draw(article.title, rect: NSRect(x: margin, y: 286, width: page.width - margin * 2, height: 88), attributes: [.font: font(32, weight: .light), .foregroundColor: ink, .paragraphStyle: paragraphStyle(lineHeight: 36)])
+    let darkOpener = article.slug == "the-accelerating-clock"
+    let openerInk = darkOpener ? NSColor.white : ink
+    let openerMuted = darkOpener ? NSColor(calibratedWhite: 0.82, alpha: 1) : NSColor(calibratedWhite: 0.30, alpha: 1)
+
+    beginPage(background: darkOpener ? NSColor.black : articlePaper)
+    drawArticleOpenerArtwork(article)
+    draw("ISSUE ONE  /  \(String(format: "%02d", index + 1))", rect: NSRect(x: margin, y: 214, width: 500, height: 20), attributes: [.font: font(9, weight: .bold), .foregroundColor: darkOpener ? NSColor.systemPurple : articleAccent, .kern: 1.6])
+    draw(article.title, rect: NSRect(x: margin, y: 120, width: page.width - margin * 2, height: 88), attributes: [.font: font(34, weight: .light), .foregroundColor: openerInk, .paragraphStyle: paragraphStyle(lineHeight: 37)])
     if let subtitle = article.subtitle {
-        draw(subtitle, rect: NSRect(x: margin, y: 228, width: page.width - margin * 2, height: 50), attributes: [.font: font(14), .foregroundColor: NSColor(calibratedWhite: 0.30, alpha: 1), .paragraphStyle: paragraphStyle(lineHeight: 19)])
+        draw(subtitle, rect: NSRect(x: margin, y: 72, width: page.width - margin * 2, height: 45), attributes: [.font: font(13), .foregroundColor: openerMuted, .paragraphStyle: paragraphStyle(lineHeight: 17)])
     }
-    draw("WRITTEN BY", rect: NSRect(x: margin, y: 168, width: 95, height: 16), attributes: [.font: font(8, weight: .bold), .foregroundColor: articleAccent, .kern: 1.5])
-    draw(article.author, rect: NSRect(x: margin, y: 141, width: 245, height: 25), attributes: [.font: font(14, weight: .semibold), .foregroundColor: ink])
-    draw("ARTWORK BY", rect: NSRect(x: 330, y: 168, width: 95, height: 16), attributes: [.font: font(8, weight: .bold), .foregroundColor: articleAccent, .kern: 1.5])
-    draw(article.artist, rect: NSRect(x: 330, y: 141, width: 220, height: 25), attributes: [.font: font(14, weight: .semibold), .foregroundColor: ink])
-    drawPageNumber(color: ink)
+    draw("WRITTEN BY", rect: NSRect(x: margin, y: 43, width: 72, height: 14), attributes: [.font: font(7, weight: .bold), .foregroundColor: articleAccent, .kern: 1.2])
+    draw(article.author, rect: NSRect(x: margin + 76, y: 42, width: 240, height: 16), attributes: [.font: font(8.5, weight: .semibold), .foregroundColor: openerInk])
+    draw("ARTWORK BY", rect: NSRect(x: 350, y: 43, width: 70, height: 14), attributes: [.font: font(7, weight: .bold), .foregroundColor: articleAccent, .kern: 1.2])
+    draw(article.artist, rect: NSRect(x: 426, y: 42, width: 125, height: 16), attributes: [.font: font(8.5, weight: .semibold), .foregroundColor: openerInk])
+    drawPageNumber(color: openerInk)
     endPage()
 
     guard let rawBody = body(for: article.slug), article.comingSoon != true else {
         beginPage(background: articlePaper)
         draw("ARTICLE FORTHCOMING", rect: NSRect(x: margin, y: 620, width: 500, height: 24), attributes: [.font: font(12, weight: .bold), .foregroundColor: articleAccent, .kern: 2])
         draw(article.excerpt, rect: NSRect(x: margin, y: 500, width: page.width - margin * 2, height: 100), attributes: [.font: font(23, weight: .light), .foregroundColor: ink, .paragraphStyle: paragraphStyle(lineHeight: 31)])
-        draw("Written by \(article.author)  ·  Artwork by \(article.artist)", rect: NSRect(x: margin, y: 455, width: 500, height: 20), attributes: [.font: font(10, weight: .semibold), .foregroundColor: articleAccent])
+        draw("WRITTEN BY", rect: NSRect(x: margin, y: 455, width: 72, height: 20), attributes: [.font: font(8, weight: .bold), .foregroundColor: articleAccent])
+        _ = drawNamesWithIcons(article.author, x: margin + 74, y: 454, maxWidth: 270, fontSize: 10, color: ink, iconColor: articleAccent)
         drawPageNumber(color: ink)
         endPage()
         continue
@@ -432,15 +532,17 @@ for (index, article) in articles.enumerated() {
 
     func beginArticlePage() {
         beginPage(background: articlePaper)
+        drawContentMotif(slug: article.slug, accent: articleAccent)
         draw("GREY MATTERS  ·  ISSUE ONE", rect: NSRect(x: margin, y: 744, width: 220, height: 14), attributes: [.font: font(7.5, weight: .bold), .foregroundColor: articleAccent, .kern: 1.4])
         draw(article.title.uppercased(), rect: NSRect(x: 275, y: 744, width: page.width - margin - 275, height: 14), attributes: [.font: font(7.5, weight: .semibold), .foregroundColor: articleInk, .kern: 0.7])
-        NSColor(calibratedRed: 0.75, green: 0.72, blue: 0.65, alpha: 1).setStroke()
+        articleInk.withAlphaComponent(0.24).setStroke()
         let rule = NSBezierPath()
         rule.move(to: NSPoint(x: margin, y: 731))
         rule.line(to: NSPoint(x: page.width - margin, y: 731))
         rule.lineWidth = 0.5
         rule.stroke()
-        draw("WRITTEN BY \(article.author.uppercased())", rect: NSRect(x: margin, y: 43, width: 330, height: 14), attributes: [.font: font(7.5, weight: .semibold), .foregroundColor: NSColor(calibratedWhite: 0.32, alpha: 1), .kern: 0.5])
+        draw("WRITTEN BY", rect: NSRect(x: margin, y: 43, width: 62, height: 14), attributes: [.font: font(7, weight: .bold), .foregroundColor: articleAccent, .kern: 0.5])
+        _ = drawNamesWithIcons(article.author, x: margin + 64, y: 42, maxWidth: 280, fontSize: 7.5, color: articleInk.withAlphaComponent(0.72), iconColor: articleAccent)
         drawPageNumber(color: articleInk)
         currentColumn = 0
         currentY = 698
@@ -481,19 +583,34 @@ for (index, article) in articles.enumerated() {
     func renderIllustration(_ illustration: Illustration) {
         let imageURL = root.appendingPathComponent("public" + illustration.path)
         let aspect = NSImage(contentsOf: imageURL).map { $0.size.width / $0.size.height } ?? 1.6
-        let imageHeight = min(210, readingWidth / max(aspect, 0.5))
-        let figureHeight = imageHeight + 32
+        let imageHeight = min(230, readingWidth / max(aspect, 0.5))
+        let figureHeight = imageHeight + 34
         if currentY - figureHeight < 70 {
             advanceColumn()
         }
         currentY -= 6
-        drawBlendedImage(illustration.path, in: NSRect(x: columnX[currentColumn], y: currentY - imageHeight, width: readingWidth, height: imageHeight), background: articlePaper, variant: renderedIllustrations.count)
-        currentY -= imageHeight + 6
-        draw(illustration.caption, rect: NSRect(x: columnX[currentColumn], y: currentY - 18, width: readingWidth, height: 18), attributes: [.font: font(7.5), .foregroundColor: articleAccent, .paragraphStyle: paragraphStyle(lineHeight: 10)])
-        currentY -= 26
+        drawImageCover(
+            illustration.path,
+            in: NSRect(
+                x: columnX[currentColumn],
+                y: currentY - imageHeight,
+                width: readingWidth,
+                height: imageHeight
+            )
+        )
+        currentY -= imageHeight + 7
+        draw(
+            illustration.caption,
+            rect: NSRect(x: columnX[currentColumn], y: currentY - 20, width: readingWidth, height: 20),
+            attributes: [
+                .font: font(7.5, weight: .medium),
+                .foregroundColor: articleAccent,
+                .paragraphStyle: paragraphStyle(lineHeight: 10),
+            ]
+        )
+        currentY -= 28
         renderedIllustrations.insert(illustration.path)
     }
-
     beginArticlePage()
     for block in blocks {
         let isHeading = looksLikeHeading(block)
@@ -583,4 +700,47 @@ if !collectedReferences.isEmpty {
 }
 
 context.closePDF()
+
+// Keep the front cover portrait, then pair every remaining page into a
+// full-size landscape spread for magazine-style viewing.
+guard let sourceDocument = CGPDFDocument(singlePagesURL as CFURL),
+      let spreadConsumer = CGDataConsumer(url: outputURL as CFURL) else {
+    fatalError("Unable to prepare two-page spreads")
+}
+var spreadBox = CGRect(x: 0, y: 0, width: page.width * 2, height: page.height)
+guard let spreadContext = CGContext(consumer: spreadConsumer, mediaBox: &spreadBox, nil) else {
+    fatalError("Unable to create spread PDF")
+}
+func mediaBoxData(_ rect: CGRect) -> CFData {
+    var rect = rect
+    return withUnsafeBytes(of: &rect) { bytes in
+        CFDataCreate(nil, bytes.bindMemory(to: UInt8.self).baseAddress, bytes.count)
+    }
+}
+
+if let coverPage = sourceDocument.page(at: 1) {
+    let coverBox = CGRect(origin: .zero, size: page)
+    spreadContext.beginPDFPage([kCGPDFContextMediaBox: mediaBoxData(coverBox)] as CFDictionary)
+    spreadContext.drawPDFPage(coverPage)
+    spreadContext.endPDFPage()
+}
+
+var sourcePageNumber = 2
+while sourcePageNumber <= sourceDocument.numberOfPages {
+    spreadContext.beginPDFPage([kCGPDFContextMediaBox: mediaBoxData(spreadBox)] as CFDictionary)
+    if let leftPage = sourceDocument.page(at: sourcePageNumber) {
+        spreadContext.drawPDFPage(leftPage)
+    }
+    if sourcePageNumber + 1 <= sourceDocument.numberOfPages,
+       let rightPage = sourceDocument.page(at: sourcePageNumber + 1) {
+        spreadContext.saveGState()
+        spreadContext.translateBy(x: page.width, y: 0)
+        spreadContext.drawPDFPage(rightPage)
+        spreadContext.restoreGState()
+    }
+    spreadContext.endPDFPage()
+    sourcePageNumber += 2
+}
+spreadContext.closePDF()
+try? fileManager.removeItem(at: singlePagesURL)
 print(outputURL.path)

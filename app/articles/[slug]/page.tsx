@@ -302,11 +302,12 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   if (!article) notFound();
   const contributors = getContributors(article.author, article.artist);
+  const hasBlackBackground = article.slug === "the-accelerating-clock";
 
   return (
     <>
       <Navigation />
-      <main className="min-h-screen pt-[var(--main-top-offset)]">
+      <main className={`min-h-screen pt-[var(--main-top-offset)] ${hasBlackBackground ? "bg-black" : ""}`}>
         <article className="pb-16 md:pb-24">
           {/* Featured image */}
           <div className="relative w-full aspect-[21/9] md:aspect-[3/1] overflow-hidden">
@@ -318,7 +319,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               priority
               sizes="100vw"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg)] via-[var(--color-bg)]/60 to-transparent" />
+            <div className={`absolute inset-0 bg-gradient-to-t to-transparent ${hasBlackBackground ? "from-black via-black/60" : "from-[var(--color-bg)] via-[var(--color-bg)]/60"}`} />
           </div>
 
           <div className="px-4 md:px-8 -mt-24 relative z-10">
